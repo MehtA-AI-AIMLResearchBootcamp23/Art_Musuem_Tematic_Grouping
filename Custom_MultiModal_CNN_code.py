@@ -59,6 +59,7 @@ pl_csv = pd.read_csv('C:\\Users\\Richard\\Desktop\\ML-AI code bootcamp\\Final fi
 #setting the path to the directory with all the necessary files
 dir_list = os.listdir(path)
 
+#Finding and mapping each image in the file path to the labels
 match_resource = []
 read_list = []
 
@@ -68,6 +69,7 @@ for i in dir_list:
         read_list.append(f'C:\\Users\\Richard\\Desktop\\ML-AI code bootcamp\\Final files\\Final image\\{i}')
         match_resource.append(int(j))
 
+#Updating the dataframe so it containes the image paths connected with each label
 pl_csv['Image'] = np.NaN
 
 for i in match_resource:
@@ -77,35 +79,49 @@ for i in match_resource:
       position = pl_csv.index[pl_csv['Resource ID(s)'] == j]
       pl_csv['Image'][position] = read_list[index]
 
+
 cat_img_df = pl_csv.dropna()
 cat_img_df = cat_img_df[['Mapped_Category', 'Image', 'Subject']]
 
-
+#Optaining the X(image) and Y(label) for each image
 y = cat_img_df['Mapped_Category']
 X = cat_img_df['Image']
+
+#Getting the additional features (keywords) from the dataset
 metadata_features = cat_img_df['Subject']
 metadata_features = metadata_features.apply(preprocess)
 metadata_features = list(metadata_features)
 
+#Vectorizing the labels
 y = pd.get_dummies(y, drop_first = False)
 
+#function to process the images to the right size
 def load_and_preprocess_image(image_path, target_size):
     image = cv2.imread(image_path)
     image = cv2.resize(image, target_size)
     return image
 
+#The target image size
 target_size = (224, 224)
 
+#fitting all the images in X to the right size
 X = np.array([load_and_preprocess_image(path, target_size) for path in X])
 
+#Getting the train test split
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.2, random_state=42)
 
+#Loading the vectorizer
 vectorizer = CountVectorizer()
 
+#Vectorizing the additional features
 metadata_features = vectorizer.fit_transform(metadata_features).toarray()
+
+#Setting up the image and additional features input
 image_input = Input(shape=(224, 224, 3))
 metadata_input = Input(shape=(metadata_features.shape[1],))
 
+#Creating the CNN model taking in the image input
+#Convolution-relu, maxpooling layers
 conv1 = Conv2D(32, (3, 3), activation='relu')(image_input)
 pool1 = MaxPooling2D((2, 2))(conv1)
 
@@ -115,19 +131,23 @@ pool2 = MaxPooling2D((2, 2))(conv2)
 conv3 = Conv2D(128, (3, 3), activation='relu')(pool2)
 pool3 = MaxPooling2D((2, 2))(conv3)
 
+#flattenining the Convolution layers
 flatten_output = Flatten()(pool3)
 
+#adding in the additional features to the image features
 concatenated_features = Concatenate()([flatten_output, metadata_input])
 
-
+#dense layer with all the features
 x = Dense(256, activation='relu')(concatenated_features)
+#dense layer outputting to prediction categories
 predictions = Dense(len(category), activation='sigmoid')(x)
 
-
+#Setting up the model
 model = Model(inputs=[image_input, metadata_input], outputs=predictions)
-
+#Compiling the model
 model.compile(optimizer=Adam(learning_rate=0.001), loss='binary_crossentropy', metrics=['accuracy'])
-
+#Fitting the model on the images, labels, and additional features
 model.fit([X_train, metadata_features[:X_train.shape[0]]], y_train, batch_size=32, epochs=10, validation_data=([X_test, metadata_features[X_train.shape[0]:]], y_test))
 
+#saving the models
 model.save('twelve_cat_CNN_extra.h5')
