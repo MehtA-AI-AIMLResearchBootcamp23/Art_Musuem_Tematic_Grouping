@@ -59,7 +59,7 @@ pl_csv = pd.read_csv('C:\\Users\\Richard\\Desktop\\ML-AI code bootcamp\\Final fi
 #setting the path to the directory with all the necessary files
 dir_list = os.listdir(path)
 
-#Finding and mapping each image in the file path to the labels
+#Finding and mapping each image in the file path to the labels (images are named by resourceID)
 match_resource = []
 read_list = []
 
