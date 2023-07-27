@@ -1,3 +1,4 @@
+#importing necessary libraries
 from PIL import Image
 import requests
 from io import BytesIO
@@ -16,7 +17,7 @@ from sklearn.feature_extraction.text import CountVectorizer
 from keras.models import Model
 from keras.layers import Input, Concatenate
 
-import re
+#function to preprocess text
 def preprocess(text):
   text = str(text)
   text = text.lower()
@@ -35,9 +36,10 @@ def preprocess(text):
   text = text.strip(' ')
   return text
 
-
+#path to the file with all the images and dataset
 path = 'C:\\Users\\Richard\\Desktop\\ML-AI code bootcamp\\Final files\\Final image'
 
+#The categories the model trains on
 category = ["Africana Studies",
 "American Studies",
 "Arabic Studies",
@@ -51,8 +53,10 @@ category = ["Africana Studies",
 "Sociology",
 "Women Gender Sexuality Studies"]
 
+#reading in the dataset
 pl_csv = pd.read_csv('C:\\Users\\Richard\\Desktop\\ML-AI code bootcamp\\Final files\\Final image\\events_edited.csv', index_col=0)
 
+#setting the path to the directory with all the necessary files
 dir_list = os.listdir(path)
 
 match_resource = []
