@@ -81,6 +81,7 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.2, rando
 #creating the seqential model
 model = Sequential()
 
+#Convolution, relu, and maxpooling layers
 model.add(Conv2D(32, (3, 3), activation='relu', input_shape=(224, 224, 3)))
 model.add(MaxPooling2D((2, 2)))
 
@@ -90,8 +91,10 @@ model.add(MaxPooling2D((2, 2)))
 model.add(Conv2D(128, (3, 3), activation='relu'))
 model.add(MaxPooling2D((2, 2)))
 
+#flattening layers
 model.add(Flatten())
 
+#dense layers
 model.add(Dense(256, activation='relu'))
 model.add(Dense(len(category), activation='sigmoid'))  
 
